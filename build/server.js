@@ -49,6 +49,6 @@ app.post('/incoming', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     yield res.end(twiml.toString());
     console.log("Message sent! ");
 }));
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log('Server is running on port 3000');
 });
