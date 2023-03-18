@@ -13,9 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+require('dotenv').config();
 const body_parser_1 = __importDefault(require("body-parser"));
-const accountSID = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
+const accountSID = process.env.TWILLIO_SID_KEY;
+const authToken = process.env.TWILIO_AUTH_TOKEN_KEY;
 const chatSonicToken = process.env.CHAT_API_KEY;
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const sdk = require('api')('@writesonic/v2.2#4enbxztlcbti48j');
@@ -25,10 +26,12 @@ sdk.auth(chatSonicToken);
 const app = (0, express_1.default)();
 app.use(express_1.default.static('public'));
 app.use(body_parser_1.default.urlencoded({ extended: true }));
+app.use(body_parser_1.default.json());
 app.get('/', (req, res) => { res.send('Hello World!'); });
 app.post('/incoming', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const twiml = new MessagingResponse();
     let response;
+    console.log(req.body.Body);
     yield sdk.chatsonic_V2BusinessContentChatsonic_post({
         enable_google_results: true,
         enable_memory: false,
@@ -41,6 +44,10 @@ app.post('/incoming', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         response = err;
     });
     console.log(response);
+    yield twiml.message(response);
+    yield res.writeHead(200, { 'Content-Type': 'text/xml' });
+    yield res.end(twiml.toString());
+    console.log("Message sent! ");
 }));
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
